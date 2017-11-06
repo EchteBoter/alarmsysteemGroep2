@@ -1,17 +1,37 @@
 import socket
+from threading import Thread
+from socketserver import ThreadingMixIn
 
-s = socket.socket()
+
+class clientThread(Thread):
+
+    def __init__(self,ip,port):
+        self.ip = ip
+        self.port = port
+        print('New server socket thread created for ' + ip + ':' + str(port))
+
+
+    def activate(self):
+        while True:
+            print(self.ip)
+            print(self.port)
+            break
+
+
+serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+host = ''
 port = 12345
-s.bind(("localhost", port))
+serversocket.bind((host, port))
 
-def client_thread(clientsocket):
-    c.send(b'send')
-    c.close()
+threads = []
+
 
 while True:
-    s.listen(5)
-    c, addr = s.accept()
-    ct = client_thread(c)
-    ct.run()
-    print('Got connection from', addr)
-    c.send(b'test')
+    serversocket.listen(5)
+    print('Waiting for connection...')
+
+    (conn, (ip, port)) = serversocket.accept()
+    ct = clientThread(ip,port)
+    ct.activate()
+    threads.append(ct)
