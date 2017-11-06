@@ -1,8 +1,8 @@
 import socket
 
 s = socket.socket()
-host = ''# ip of raspberry pi
+host = 'localhost'
 port = 12345
 s.connect((host, port))
-print(s.recv(1024))
+print(s.recv(1024).decode())
 s.close()

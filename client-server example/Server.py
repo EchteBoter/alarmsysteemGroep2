@@ -1,14 +1,17 @@
 import socket
 
 s = socket.socket()
-host = '145.89.167.38'
 port = 12345
-s.bind((host, port))
+s.bind(("localhost", port))
 
+def client_thread(clientsocket):
+    c.send(b'send')
+    c.close()
 
 while True:
     s.listen(5)
     c, addr = s.accept()
-    print ('Got connection from',addr)
-    c.send('Thank you for connecting')
-c.close()
+    ct = client_thread(c)
+    ct.run()
+    print('Got connection from', addr)
+    c.send(b'test')
