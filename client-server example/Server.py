@@ -1,7 +1,9 @@
 import socket, time
 from threading import *
-from socketserver import ThreadingMixIn
+from alarmcodes import *
 
+
+print(ok, triggered, shutdown)
 
 class clientThread(Thread):
 
@@ -15,13 +17,43 @@ class clientThread(Thread):
     def run(self):
         while True:
             time.sleep(1)
+
+            try:
+                message = self.ct.recv(2).decode()
+            except:
+                print('Sensor ' + self.name + ': '+ 'Connection is NOT OK')
+                print('Sensor ' + self.name + ': '+ 'Entering triggered state')
+                self.setalarmTriggered()
+
+            self.state = message
+
+            if message == ok:
+                print('Sensor ' + self.name + ': ' + 'Connection OK')
+                self.ct.send(b'Connection OK')
+            elif message == triggered:
+                self.setalarmTriggered()
+
+
+
+    def setalarmTriggered(self):
+        t = threading.Thread(target=timeout)
+        t.start()
+
+        while inTime:
             message = self.ct.recv(2).decode()
-            if message == '00':
-                print('Sensor ' + self.name + ': '+ 'Connection OK')
+            if message != ok:
+                self.state = message
+                return
+        self.state = alarm
+        t.join()
 
 
-    def shutdown(self):
-        self.ct.send(b'99')
+    def timeout(self):
+        global inTime
+        inTime = True
+        time.sleep(5)
+        inTime = False
+
 
 
 
@@ -45,3 +77,6 @@ while True:
 
     # Start new client Thread
     ct.start()
+
+    # Add new thread to list of all threads(alarmsystemen)
+    threads.append(ct)
