@@ -18,6 +18,8 @@ sock.send(b'A')
 
 while True:
     sock.send(b'00')
+    rMessage = sock.recv(1024).decode()
+    print(rMessage)
 
 
 
