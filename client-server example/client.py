@@ -14,7 +14,7 @@ host = '145.89.207.113'
 port = 12345
 
 sock.connect((host, port))
-sock.send(b'A')
+sock.send(b'C')
 
 while True:
     sock.send(b'00')
