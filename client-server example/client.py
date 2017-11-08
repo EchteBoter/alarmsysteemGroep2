@@ -17,9 +17,7 @@ sock.connect((host, port))
 sock.send(b'C')
 
 while True:
-    sock.send(b'00')
-    rMessage = sock.recv(1024).decode()
-    print(rMessage)
+    sock.send(b'00')git
 
 
 
