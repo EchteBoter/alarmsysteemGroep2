@@ -6,7 +6,7 @@ class leds():
     red    = LED(17)
     yellow = LED(23)
     green  = LED(25)
-    
+
     def redOn(red = red):
         red.on()
 
@@ -35,3 +35,31 @@ while True:
     leds.yellowOn()
     time.sleep(1)
     leds.yellowOff()
+
+
+
+class led:
+    def __init__(self, color, gpiolocation):
+        self.color = color
+        self.LED = LED(gpiolocation)
+
+    def turnon(self):
+        self.LED.on()
+
+    def turnoff(self):
+        self.LED.off()
+
+
+redLED = led('red', 17)
+yellowLED = led('yellow', 23)
+greenLED = led('green', 25)
+
+while True:
+    redLED.turnon()
+    yellowLED.turnon()
+    greenLED.turnon()
+    time.sleep(2)
+    redLED.turnoff()
+    yellowLED.turnoff()
+    greenLED.turnoff()
+    time.sleep(2)
