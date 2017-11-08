@@ -43,13 +43,12 @@ class led:
         self.color = color
         self.LED = LED(gpiolocation)
 
-
     def turnon(self):
         self.LED.on()
 
-
     def turnoff(self):
         self.LED.off()
+
 
 redLED = led('red', 17)
 yellowLED = led('yellow', 23)
