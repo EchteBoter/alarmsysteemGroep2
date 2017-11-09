@@ -14,11 +14,8 @@ def shutdown():
         if not inputState:
             print('System will shut down in 2 seconds')
             for t in threads:
-                print('1')
                 #t.join()
-                print('2')
                 t.shutdownclient()
-                print('3')
             time.sleep(2)
             serversocket.close()
             turnoffallleds()
@@ -42,30 +39,31 @@ class clientThread(Thread):
     def run(self):
         while True:
             time.sleep(1)
-            print('1')
             try:
                 message = self.ct.recv(2).decode()
             except:
                 print('Sensor ' + self.name + ': '+ 'Connection is NOT OK')
                 print('Sensor ' + self.name + ': '+ 'Entering triggered state')
                 self.setalarmTriggered()
-            print('2')
-            print(message)
             self.state = message
-            print('3')
             if self.state == alarmcodes['ok']:
                 turnoffallleds()
                 greenLED.turnon()
+                print('Sensor ' + self.name + ':' + 'Connection OK')
             elif self.state == alarmcodes['triggered']:
-                print('alarm has been triggered')
                 turnoffallleds()
                 yellowLED.turnon()
+                print('Sensor ' + self.name + ':' + 'Alarm has been triggered')
+                print('Sensor ' + self.name + ':' + 'Waiting 5 seconds before escalating')
                 self.setalarmTriggered()
             elif self.state == alarmcodes['alarm']:
                 turnoffallleds()
                 redLED.turnon()
-                print('Sensor ' + self.name + ': ' + 'Connection OK')
-            print('4')
+                print('Sensor ' + self.name + ': ' + 'ALARM!')
+                if not resetButton.is_pressed:
+                    self.ct.send(alarmcodes['resetalarm'].encode())
+                    self.state = alarmcodes['ok']
+                    continue
             self.ct.send(self.state.encode())
 
 

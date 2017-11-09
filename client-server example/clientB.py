@@ -38,7 +38,7 @@ try:
     host = '192.168.1.100'
     port = 12345
     sock.connect((host, port))
-    sock.send(b'A')
+    sock.send(b'B')
     print('Connection is stable')
 except:
     print('Connection is unstable.')
