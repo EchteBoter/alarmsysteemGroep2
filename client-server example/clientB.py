@@ -18,10 +18,8 @@ def triggerAlarm():
         inputState = resettrigger.is_pressed
         if not inputState:
             state = alarmcodes['ok']
-            print(state)
             t.join()
             return
-    print('not inTime')
     state = alarmcodes['alarm']
     sock.send(state.encode())
 
@@ -70,7 +68,6 @@ while True:
         state = alarmcodes['ok']
         continue
 
-    print(rMessage)
     print('Connection is unstable')
 
 

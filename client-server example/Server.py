@@ -14,7 +14,6 @@ def shutdown():
         if not inputState:
             print('System will shut down in 2 seconds')
             for t in threads:
-                #t.join()
                 t.shutdownclient()
             time.sleep(2)
             serversocket.close()
@@ -53,9 +52,15 @@ class clientThread(Thread):
             elif self.state == alarmcodes['triggered']:
                 turnoffallleds()
                 yellowLED.turnon()
+                triggerThread = Thread(target=self.setalarmTriggered)
                 print('Sensor ' + self.name + ':' + 'Alarm has been triggered')
                 print('Sensor ' + self.name + ':' + 'Waiting 5 seconds before escalating')
-                self.setalarmTriggered()
+                triggerThread.start()
+                while self.state == alarmcodes['triggered']:
+                    time.sleep(1)
+                    turnoffallleds()
+                    yellowLED.turnon()
+                triggerThread.join()
             elif self.state == alarmcodes['alarm']:
                 turnoffallleds()
                 redLED.turnon()
@@ -64,6 +69,8 @@ class clientThread(Thread):
                     self.ct.send(alarmcodes['resetalarm'].encode())
                     self.state = alarmcodes['ok']
                     continue
+            else:
+                continue
             self.ct.send(self.state.encode())
 
 
@@ -86,7 +93,10 @@ class clientThread(Thread):
         #t.join()
         time.sleep(5)
         message = self.ct.recv(2).decode()
-        print('message is ' + message)
+        if message == alarmcodes['ok']:
+            self.state = alarmcodes['ok']
+        elif message == alarmcodes['alarm']:
+            self.state = alarmcodes['alarm']
 
 
     def timeout(self):
