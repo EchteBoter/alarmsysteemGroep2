@@ -5,6 +5,7 @@ from gpiozero import Button, LED
 
 
 shutdownButton = Button(24)
+resetButton = Button(17)
 leds = []
 
 def shutdown():
@@ -12,10 +13,15 @@ def shutdown():
         inputState = shutdownButton.is_pressed
         if not inputState:
             print('System will shut down in 2 seconds')
-            greenLED.turnoff()
+            for t in threads:
+                print('1')
+                #t.join()
+                print('2')
+                t.shutdownclient()
+                print('3')
             time.sleep(2)
             serversocket.close()
-            time.sleep(1)
+            turnoffallleds()
             os._exit(0)
 
 def turnoffallleds():
@@ -36,54 +42,65 @@ class clientThread(Thread):
     def run(self):
         while True:
             time.sleep(1)
-
+            print('1')
             try:
                 message = self.ct.recv(2).decode()
             except:
                 print('Sensor ' + self.name + ': '+ 'Connection is NOT OK')
                 print('Sensor ' + self.name + ': '+ 'Entering triggered state')
                 self.setalarmTriggered()
-
+            print('2')
             print(message)
             self.state = message
-
+            print('3')
             if self.state == alarmcodes['ok']:
                 turnoffallleds()
                 greenLED.turnon()
             elif self.state == alarmcodes['triggered']:
+                print('alarm has been triggered')
                 turnoffallleds()
                 yellowLED.turnon()
+                self.setalarmTriggered()
             elif self.state == alarmcodes['alarm']:
                 turnoffallleds()
                 redLED.turnon()
-
-            self.ct.send(self.state.encode())
-            if message == alarmcodes['ok']:
                 print('Sensor ' + self.name + ': ' + 'Connection OK')
-            elif message == alarmcodes['triggered']:
-                self.setalarmTriggered()
+            print('4')
+            self.ct.send(self.state.encode())
+
 
 
     def setalarmTriggered(self):
-        t = Thread(target=self.timeout)
-        t.start()
+        #t = Thread(target=self.timeout)
+        #t.start()
+        #message = self.ct.recv(2).decode()
+        #while inTime:
+        #    print('inTime')
+        #    print('message is' + message)
+        #    if message != alarmcodes['ok']:
+        #        self.state = message
+        #        print(self.state)
+        #        return
+        #    elif message == '':
+        #        self.ct.join()
+        #        return
+        #self.state = alarmcodes['alarm']
+        #t.join()
+        time.sleep(5)
+        message = self.ct.recv(2).decode()
+        print('message is ' + message)
 
-        while inTime:
-            message = self.ct.recv(2).decode()
-            if message != alarmcodes['ok']:
-                self.state = message
-                return
-            elif message == '':
-                self.ct.join()
-                return
-        self.state = alarmcodes['alarm']
-        t.join()
 
     def timeout(self):
         global inTime
         inTime = True
         time.sleep(5)
         inTime = False
+
+    def shutdownclient(self):
+        self.ct.send(alarmcodes['shutdown'].encode())
+        self.join()
+        self.ct.close()
 
 class led:
     def __init__(self, color, gpiolocation):
